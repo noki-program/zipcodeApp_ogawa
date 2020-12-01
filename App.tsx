@@ -12,24 +12,29 @@ import {
 import React, { useState } from "react";
 import axios from "axios";
 
-
-const { width } = Dimensions.get("screen");
+//画面の大きさを取得
+const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
+//APIのベースとなるURLを変数に代入
 const apiBaseURL = "https://zipcloud.ibsnet.co.jp/api/search";
 
 export default function App() {
-  const [zipcode, setZipcode] = useState<postCode>();
+  //入力されたpostCodeがzipcodeに入る
+  const [zipcode, setZipcode] = useState<string>();
   const [addressList, setAddressList] = useState<[]>();
   const [isLoading, setIsLoading] = useState(false);
 
+  //ボタンが押されたときに始まる処理
   const updateScreenAsyn = async () => {
-    setIsLoading(true); //読み込み中にする
+    //読み込み中にする
+    setIsLoading(true); 
 
     // 住所情報を取得
     try {
-      const putAddressList = await getAddress(zipcode);
-      setAddressList(putAddressList);
+      const addressList = await getAddressInfo(zipcode);
+
+      setAddressList(addressList);
     } catch (error) {
       alert(error);
     }
@@ -38,7 +43,7 @@ export default function App() {
   };
 
   // 住所を取得する;
-  const getAddress = async (zipcode: string) => {
+  const getAddressInfo = async (zipcode: string) => {
     const requestConfig = {
       baseURL: apiBaseURL,
       params: { zipcode: zipcode },
@@ -73,7 +78,7 @@ export default function App() {
       <FlatList
         data={addressList}
         renderItem={renderAddressItem}
-        keyExtractor={(item, index) => item(index)}
+        keyExtractor={(item,index) => item.index}
         style={styles.listItem}
       />
     </View>
@@ -150,11 +155,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "40%",
     backgroundColor: "#fff",
-    width: width * 0.8,
+    width: screenWidth * 0.8,
     borderWidth: 3,
     borderColor: "#000000",
     height: screenHeight * 0.5,
   },
-
-  listItem: {},
 });
