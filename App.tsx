@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  ListRenderItemInfo,
 } from "react-native";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+
 
 const { width } = Dimensions.get("screen");
 const screenHeight = Dimensions.get("screen").height;
@@ -17,8 +19,8 @@ const screenHeight = Dimensions.get("screen").height;
 const apiBaseURL = "https://zipcloud.ibsnet.co.jp/api/search";
 
 export default function App() {
-  const [zipcode, setZipcode] = useState<number>();
-  const [address, setAddress] = useState();
+  const [zipcode, setZipcode] = useState<postCode>();
+  const [addressList, setAddressList] = useState<[]>();
   const [isLoading, setIsLoading] = useState(false);
 
   const updateScreenAsyn = async () => {
@@ -26,8 +28,8 @@ export default function App() {
 
     // 住所情報を取得
     try {
-      const address = await getAddress(zipcode);
-      setAddress(address);
+      const putAddressList = await getAddress(zipcode);
+      setAddressList(putAddressList);
     } catch (error) {
       alert(error);
     }
@@ -36,39 +38,42 @@ export default function App() {
   };
 
   // 住所を取得する;
-  const getAddress = async (zipcode: number) => {
+  const getAddress = async (zipcode: string) => {
     const requestConfig = {
       baseURL: apiBaseURL,
-      params: { zipcode },
+      params: { zipcode: zipcode },
     };
 
     const responce = await axios(requestConfig);
-    const address = responce.data.results;
-    console.log(address);
-    console.log("-----------------------");
-    return address;
+    const addressList = responce.data.results;
+    console.log(addressList);
+    return addressList;
   };
 
   const loadingView = <Text>Loading</Text>;
 
-  const renderAddressInfo = () => {
-    let addressArray = [];
-
-    for (let i = 0; i < 3; i++) {
-      addressArray.push(address[i].address1);
-      addressArray.push(address[i].address2);
-      addressArray.push(address[i].address3);
+  const renderAddressItem = ({ item }: ListRenderItemInfo<any>) => {
+    if (item === null) {
+      return (
+        <Text>住所が見つかりませんでした。</Text>
+      );
+    } else {
+      return (
+        <Text>
+          {item.address1}
+          {item.address2}
+          {item.address3}
+        </Text>
+      );
     }
-
-    return <Text>{addressInfoItem}</Text>;
   };
 
   const listContainerView = (
     <View>
       <FlatList
-        data={address}
-        renderItem={renderAddressInfo}
-        keyExtractor={(item) => item.id}
+        data={addressList}
+        renderItem={renderAddressItem}
+        keyExtractor={(item, index) => item(index)}
         style={styles.listItem}
       />
     </View>
@@ -81,6 +86,8 @@ export default function App() {
           onChangeText={(postCode) => setZipcode(postCode)}
           style={styles.inputText}
           keyboardType="numeric"
+          placeholder="郵便番号"
+          maxLength={7}
         />
 
         <TouchableOpacity style={styles.button} onPress={updateScreenAsyn}>
@@ -113,13 +120,13 @@ const styles = StyleSheet.create({
   },
 
   inputText: {
-    textAlign: "right",
+    textAlign: "left",
     padding: 10,
     margin: 5,
     fontSize: 30,
     backgroundColor: "#fff",
     color: "#000",
-    width: "45%",
+    width: "50%",
     borderWidth: 3,
     borderColor: "#000000",
   },
