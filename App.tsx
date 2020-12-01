@@ -21,25 +21,28 @@ const apiBaseURL = "https://zipcloud.ibsnet.co.jp/api/search";
 
 export default function App() {
   //入力されたpostCodeがzipcodeに入る
-  const [zipcode, setZipcode] = useState<string>();
+  const [zipcode, setZipcode] = useState<string>("");
   const [addressList, setAddressList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   //ボタンが押されたときに始まる処理
   const updateScreenAsyn = async () => {
     //読み込み中にする
-    setIsLoading(true); 
+    setIsLoading(true);
 
     // 住所情報を取得
     try {
       const addressList = await getAddressInfo(zipcode);
-
-      setAddressList(addressList);
+      if (addressList === null) {
+        alert("住所が取得できませんでした。ﾋﾟｴﾝ");
+      } else {
+        setAddressList(addressList);
+      }
     } catch (error) {
       alert(error);
     }
-
-    setIsLoading(false); //読み込み終了
+    //読み込み終了
+    setIsLoading(false);
   };
 
   // 住所を取得する;
@@ -49,6 +52,7 @@ export default function App() {
       params: { zipcode: zipcode },
     };
 
+    //取得した情報を
     const responce = await axios(requestConfig);
     const addressList = responce.data.results;
     console.log(addressList);
@@ -58,11 +62,6 @@ export default function App() {
   const loadingView = <Text>Loading</Text>;
 
   const renderAddressItem = ({ item }: ListRenderItemInfo<any>) => {
-    if (item === null) {
-      return (
-        <Text>住所が見つかりませんでした。</Text>
-      );
-    } else {
       return (
         <Text>
           {item.address1}
@@ -70,7 +69,6 @@ export default function App() {
           {item.address3}
         </Text>
       );
-    }
   };
 
   const listContainerView = (
@@ -78,8 +76,7 @@ export default function App() {
       <FlatList
         data={addressList}
         renderItem={renderAddressItem}
-        keyExtractor={(item,index) => item.index}
-        style={styles.listItem}
+        keyExtractor={(item, index:any) => index}
       />
     </View>
   );
