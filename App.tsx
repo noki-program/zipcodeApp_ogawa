@@ -8,6 +8,7 @@ import {
   FlatList,
   Dimensions,
   ListRenderItemInfo,
+  SafeAreaView,
 } from "react-native";
 import React, { useState } from "react";
 import axios from "axios";
@@ -45,14 +46,14 @@ export default function App() {
     setIsLoading(false);
   };
 
-  // 住所を取得する;
+  // 住所を取得する
   const getAddressInfo = async (zipcode: string) => {
     const requestConfig = {
       baseURL: apiBaseURL,
       params: { zipcode: zipcode },
     };
 
-    //取得した情報を
+    //取得した情報を変数respomceに格納し、必要な情報だけaddressListとして返す
     const responce = await axios(requestConfig);
     const addressList = responce.data.results;
     console.log(addressList);
@@ -82,7 +83,7 @@ export default function App() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.userContainer}>
         <TextInput
           onChangeText={(postCode) => setZipcode(postCode)}
@@ -102,7 +103,7 @@ export default function App() {
       </View>
 
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
   );
 }
 
