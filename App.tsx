@@ -22,7 +22,7 @@ const apiBaseURL = "https://zipcloud.ibsnet.co.jp/api/search";
 export default function App() {
   //入力されたpostCodeがzipcodeに入る
   const [zipcode, setZipcode] = useState<string>();
-  const [addressList, setAddressList] = useState<[]>();
+  const [addressList, setAddressList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   //ボタンが押されたときに始まる処理
