@@ -23,7 +23,7 @@ const apiBaseURL = "https://zipcloud.ibsnet.co.jp/api/search";
 export default function App() {
   //入力されたpostCodeがzipcodeに入る
   const [zipcode, setZipcode] = useState<string>("");
-  const [addressList, setAddressList] = useState([]);
+  const [addressList, setAddressList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   //ボタンが押されたときに始まる処理
@@ -49,14 +49,15 @@ export default function App() {
   // 住所を取得する
   const getAddressInfo = async (zipcode: string) => {
     const requestConfig = {
-      baseURL: apiBaseURL,
-      params: { zipcode: zipcode },
+      baseURL: apiBaseURL, 
+      params: { zipcode: zipcode }
     };
 
     //取得した情報を変数respomceに格納し、必要な情報だけaddressListとして返す
     const responce = await axios(requestConfig);
+    console.log(responce);
     const addressList = responce.data.results;
-    console.log(addressList);
+    
     return addressList;
   };
 
@@ -77,7 +78,7 @@ export default function App() {
       <FlatList
         data={addressList}
         renderItem={renderAddressItem}
-        keyExtractor={(item, index:any) => index}
+        keyExtractor={(item, index) => `${index}`}
       />
     </View>
   );
